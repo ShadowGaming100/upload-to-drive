@@ -1,6 +1,7 @@
 name: "Google Drive Upload Action"
 description: "Uploads files to Google Drive with options to preserve folder structure, process multiple input branches, and skip files."
 author: "Your Name"
+
 inputs:
   input:
     description: "Paths to one or more folders to be uploaded. Separate multiple paths by a space."
@@ -30,6 +31,7 @@ inputs:
     description: "Comma-separated glob patterns of files to skip (e.g., '*.tmp,*.log')."
     required: false
     default: ""
+
 runs:
   using: 'composite'
   steps:
@@ -37,23 +39,35 @@ runs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
+
     - name: Install dependencies
       shell: bash
       run: |
-        python3 -m venv "${GITHUB_ACTION_PATH}/.venv
-        source "${GITHUB_ACTION_PATH}/.venv/bin/activate
-        python3 -m pip install --no-cache-dir google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
+        python3 -m venv "${GITHUB_ACTION_PATH}/.venv"
+        if [ -f "${GITHUB_ACTION_PATH}/.venv/bin/activate" ]; then
+          source "${GITHUB_ACTION_PATH}/.venv/bin/activate"
+          python3 -m pip install --no-cache-dir google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client
+        else
+          echo "❌ Virtual environment activation script not found!"
+          exit 1
+        fi
+
     - name: Perform upload
       id: upload-files-to-google-drive
       shell: bash
       run: |
-        source "${GITHUB_ACTION_PATH}/.venv/bin/activate"
-        python3 "${GITHUB_ACTION_PATH}/main.py" \
-          --input "${{ inputs.input }}" \
-          --filter "${{ inputs.filter }}" \
-          --output "${{ inputs.output }}" \
-          --target "${{ inputs.target }}" \
-          --credentials "${{ inputs.credentials }}" \
-          --purge-stale="${{ inputs.purgeStale }}" \
-          --flat-upload="${{ inputs.flatUpload }}" \
-          --skip="${{ inputs.skip }}"
+        if [ -f "${GITHUB_ACTION_PATH}/.venv/bin/activate" ]; then
+          source "${GITHUB_ACTION_PATH}/.venv/bin/activate"
+          python3 "${GITHUB_ACTION_PATH}/main.py" \
+            --input "${{ inputs.input }}" \
+            --filter "${{ inputs.filter }}" \
+            --output "${{ inputs.output }}" \
+            --target "${{ inputs.target }}" \
+            --credentials "${{ inputs.credentials }}" \
+            --purge-stale="${{ inputs.purgeStale }}" \
+            --flat-upload="${{ inputs.flatUpload }}" \
+            --skip="${{ inputs.skip }}"
+        else
+          echo "❌ Virtual environment not found during upload step!"
+          exit 1
+        fi
