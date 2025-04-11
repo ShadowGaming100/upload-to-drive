@@ -18,11 +18,11 @@ inputs:
   credentials:
     description: "Base64 encoded credentials.json or a path to the credentials file."
     required: true
-  purge-stale:
+  purgeStale:
     description: "Set to 'true' to delete stale files in the output folder."
     required: false
     default: "false"
-  flat-upload:
+  flatUpload:
     description: "Set to 'true' to flatten the directory structure and upload all files into the same folder."
     required: false
     default: "false"
@@ -31,17 +31,29 @@ inputs:
     required: false
     default: ""
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
-    - name: Run Google Drive Upload Script
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install dependencies
       shell: bash
       run: |
-        python main.py \
+        python3 -m venv "${GITHUB_ACTION_PATH}/.venv"
+        source "${GITHUB_ACTION_PATH}/.venv/bin/activate"
+        python3 -m pip install --no-cache-dir google-auth google-auth-httplib2 google-auth-oauthlib google-api-python-client"
+    - name: Perform upload
+      id: upload-files-to-google-drive
+      shell: bash
+      run: |
+        source "${GITHUB_ACTION_PATH}/.venv/bin/activate"
+        python3 "${GITHUB_ACTION_PATH}/main.py" \
           --input "${{ inputs.input }}" \
           --filter "${{ inputs.filter }}" \
           --output "${{ inputs.output }}" \
           --target "${{ inputs.target }}" \
           --credentials "${{ inputs.credentials }}" \
-          --purge-stale "${{ inputs.purge-stale }}" \
-          --flat-upload "${{ inputs.flat-upload }}" \
-          --skip "${{ inputs.skip }}"
+          --purge-stale="${{ inputs.purgeStale }}" \
+          --flat-upload="${{ inputs.flatUpload }}" \
+          --skip="${{ inputs.skip }}"
