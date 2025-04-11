@@ -362,10 +362,11 @@ def main() -> None:
     )
     parser.add_argument(
         "--purge-stale",
-        help="Delete stale files (i.e. files which aren't present locally) in the output folder",
-        action="store_true",
+        help="Whether to delete stale files...",
+        type=lambda x: x.lower() == "true",
         default=False,
-    )
+)
+
     parser.add_argument(
         "--flat-upload",
         help="If set, upload all files directly into the output folder (flattening folder structure)",
