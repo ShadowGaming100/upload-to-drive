@@ -31,22 +31,17 @@ inputs:
     required: false
     default: ""
 runs:
-  using: "docker"
-  image: "Dockerfile"
-  args:
-    - "--input"
-    - ${{ inputs.input }}
-    - "--filter"
-    - ${{ inputs.filter }}
-    - "--output"
-    - ${{ inputs.output }}
-    - "--target"
-    - ${{ inputs.target }}
-    - "--credentials"
-    - ${{ inputs.credentials }}
-    - "--purge-stale"
-    - ${{ inputs.purge-stale }}
-    - "--flat-upload"
-    - ${{ inputs.flat-upload }}
-    - "--skip"
-    - ${{ inputs.skip }}
+  using: "composite"
+  steps:
+    - name: Run Google Drive Upload Script
+      shell: bash
+      run: |
+        python main.py \
+          --input "${{ inputs.input }}" \
+          --filter "${{ inputs.filter }}" \
+          --output "${{ inputs.output }}" \
+          --target "${{ inputs.target }}" \
+          --credentials "${{ inputs.credentials }}" \
+          --purge-stale "${{ inputs.purge-stale }}" \
+          --flat-upload "${{ inputs.flat-upload }}" \
+          --skip "${{ inputs.skip }}"
