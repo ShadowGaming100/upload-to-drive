@@ -18,4 +18,4 @@ COPY main.py .
 RUN chmod +x main.py
 
 # Set the entrypoint to run the upload script when the container starts
-ENTRYPOINT ["./main.py"]
+ENTRYPOINT ["main.py"]
