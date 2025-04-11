@@ -1,0 +1,52 @@
+name: "Google Drive Upload Action"
+description: "Uploads files to Google Drive with options to preserve folder structure, process multiple input branches, and skip files."
+author: "Your Name"
+inputs:
+  input:
+    description: "Paths to one or more folders to be uploaded. Separate multiple paths by a space."
+    required: true
+  filter:
+    description: "Glob pattern to filter files in the input folders."
+    required: false
+    default: "*"
+  output:
+    description: "Path to the folder on Google Drive where the files should be uploaded."
+    required: true
+  target:
+    description: "Folder ID of the Drive root folder."
+    required: true
+  credentials:
+    description: "Base64 encoded credentials.json or a path to the credentials file."
+    required: true
+  purge-stale:
+    description: "Set to 'true' to delete stale files in the output folder."
+    required: false
+    default: "false"
+  flat-upload:
+    description: "Set to 'true' to flatten the directory structure and upload all files into the same folder."
+    required: false
+    default: "false"
+  skip:
+    description: "Comma-separated glob patterns of files to skip (e.g., '*.tmp,*.log')."
+    required: false
+    default: ""
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - "--input"
+    - ${{ inputs.input }}
+    - "--filter"
+    - ${{ inputs.filter }}
+    - "--output"
+    - ${{ inputs.output }}
+    - "--target"
+    - ${{ inputs.target }}
+    - "--credentials"
+    - ${{ inputs.credentials }}
+    - "--purge-stale"
+    - ${{ inputs.purge-stale }}
+    - "--flat-upload"
+    - ${{ inputs.flat-upload }}
+    - "--skip"
+    - ${{ inputs.skip }}
